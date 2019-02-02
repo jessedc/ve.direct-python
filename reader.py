@@ -1,15 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/python -u
 # -*- coding: utf-8 -*-
 
-# import serial
+import argparse
 from vedirect import Vedirect
 import paho.mqtt.client as mqtt
-
-mqttc = mqtt.Client('319a-victron-mppt')
-mqttc.username_pw_set('iot-user', 'avrdragon')
-broker_ip = '192.168.1.15'
-
-base_topic = 'victron/mppt/'
 
 victron_key_map = {
     'LOAD': 'now/battery-state',
@@ -63,33 +57,51 @@ victron_error = {
     '119': 'User settings invalid [error 119]'
 }
 
-# Local variable to store previous frame
-# previous_victron_frame = {}
+
+class Connector:
+
+    def __init__(self, broker, client_id, mqtt_user=None, mqtt_password=None, base_topic='victron/mppt/', serial='/dev/ttyAMA0'):
+        self.base_topic = base_topic
+
+        self.mqttc = mqtt.Client(client_id)
+        if mqtt_user is not None and mqtt_password is not None:
+            self.mqttc.username_pw_set(mqtt_user, mqtt_password)
+        self.mqttc.connect(broker)
+        self.mqttc.loop_start()
+
+        self.ve = Vedirect(serial, 1)
+        self.ve.read_data_callback(self.on_victron_data_callback)
+
+    # Local variable to store previous frame
+    # previous_victron_frame = {}
+
+    def on_victron_data_callback(self, data):
+        # global previous_victron_frame
+
+        for key, value in data.iteritems():
+            # NB: To filter values, do something like this:
+            # if previous_victron_frame.get(key, None) == value:
+            #     continue
+            # else:
+            #     previous_victron_frame[key] = value
+
+            if key == 'CS':
+                value = victron_state[value]
+            elif key == 'MPPT':
+                value = mppt_state[value]
+            elif key == 'ERR':
+                value = victron_error[value]
+
+            key = self.base_topic + victron_key_map[key]
+            self.mqttc.publish(key, value)
 
 
-def on_victron_data_callback(data):
-    # global previous_victron_frame
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Parse Ve.Direct serial data onto MQTT broker')
+    parser.add_argument('--broker', help='Broker IP address', required=True)
+    parser.add_argument('--client-id', help='Unique mqtt client id', required=True)
+    parser.add_argument('--username', help='Username for mqtt broker')
+    parser.add_argument('--password', help='Password for mqtt broker')
+    args = parser.parse_args()
 
-    for key, value in data.iteritems():
-        # NB: To filter values, do something like this:
-        # if previous_victron_frame.get(key, None) == value:
-        #     continue
-        # else:
-        #     previous_victron_frame[key] = value
-
-        if key == 'CS':
-            value = victron_state[value]
-        elif key == 'MPPT':
-            value = mppt_state[value]
-        elif key == 'ERR':
-            value = victron_error[value]
-
-        key = base_topic + victron_key_map[key]
-        mqttc.publish(key, value)
-
-
-mqttc.connect(broker_ip)
-mqttc.loop_start()
-
-ve = Vedirect('/dev/ttyAMA0', 1)
-ve.read_data_callback(on_victron_data_callback)
+    connector = Connector(args.broker, args.client_id, args.username, args.password)
