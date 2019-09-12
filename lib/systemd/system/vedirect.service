@@ -7,8 +7,8 @@ Type=simple
 User=pi
 Group=pi
 WorkingDirectory=/home/pi/serial-reader
-EnvironmentFile=/home/pi/serial-reader/.env
-ExecStart=/usr/bin/python -u reader.py --broker=${MQTT_BROKER_IP} --client-id=${MQTT_CLIENT_ID} --username="${MQTT_USERNAME}" --password="${MQTT_PASSWORD}"
+EnvironmentFile=/home/pi/serial-reader/.env.installed
+ExecStart=/usr/bin/python -u src/reader.py --broker=${MQTT_BROKER_IP} --client-id=${MQTT_CLIENT_ID}-victron --username="${MQTT_USERNAME}" --password="${MQTT_PASSWORD}"
 StandardOutput=syslog
 StandardError=syslog
 

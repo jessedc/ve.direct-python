@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-from vedirect import Vedirect
+from vedirect.vedirect import Vedirect
 import paho.mqtt.client as mqtt
 
 victron_key_map = {

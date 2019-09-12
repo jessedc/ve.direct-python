@@ -1,0 +1,16 @@
+[Unit]
+Description=Raspberry pi Temperature Monitor
+After=multi-user.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/serial-reader
+EnvironmentFile=/home/pi/serial-reader/.env.installed
+ExecStart=/usr/bin/python -u src/cputemp.py --broker=${MQTT_BROKER_IP} --client-id=${MQTT_CLIENT_ID}-cpu --username="${MQTT_USERNAME}" --password="${MQTT_PASSWORD}" --topic="${TEMP_TOPIC}" --report-period=${TEMP_REPORT_PERIOD}
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
