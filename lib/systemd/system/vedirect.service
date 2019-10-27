@@ -8,7 +8,7 @@ User=pi
 Group=pi
 WorkingDirectory=/home/pi/ve.direct-python
 EnvironmentFile=/home/pi/ve.direct-python/.env.installed
-ExecStart=/usr/bin/python -u src/reader.py --influx=${INFLUX_HOST} --database=${INFLUX_DB} --port=${SERIAL_PORT}
+ExecStart=/usr/bin/python3 -u -m vedirect --influx=${INFLUX_HOST} --database=${INFLUX_DB} --port=${SERIAL_PORT}
 StandardOutput=syslog
 StandardError=syslog
 RestartSec=5s
