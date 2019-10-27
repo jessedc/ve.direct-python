@@ -26,38 +26,6 @@ victron_key_map = {
     'PPV': 'now/pv-power'
 }
 
-victron_state = {
-    '0': 'Off',
-    '2': 'Fault',
-    '3': 'Bulk',
-    '4': 'Absorption',
-    '5': 'Float'
-}
-
-mppt_state = {
-    '0': 'Off',
-    '1': 'Limited',
-    '2': 'Active'
-}
-
-victron_error = {
-    '0': 'No error [error 0]',
-    '2': 'Battery voltage too high [error 2]',
-    '17': 'Charger temperature too high [error 17]',
-    '18': 'Charger over current [error 18]',
-    '19': 'Charger current reversed [error 19]',
-    '20': 'Bulk time limit exceeded [error 20]',
-    '21': 'Current sensor issue [error 21]',
-    '26': 'Terminals overheated [error 26]',
-    '33': 'Input voltage too high (solar panel) [error 33]',
-    '34': 'Input current too high (solar panel) [error 34]',
-    '38': 'Input shutdown (excessive battery voltage) [error 38]',
-    '116': 'Factory calibration data lost [error 116]',
-    '117': 'Invalid/incompatible firmware [error 117]',
-    '119': 'User settings invalid [error 119]'
-}
-
-
 class Connector:
 
     def __init__(self, broker, client_id, mqtt_user=None, mqtt_password=None, base_topic='victron/mppt/', serial='/dev/ttyAMA0'):
@@ -86,11 +54,11 @@ class Connector:
             #     previous_victron_frame[key] = value
 
             if key == 'CS':
-                value = victron_state[value]
+                value = Vedirect.VICTRON_CS[value]
             elif key == 'MPPT':
-                value = mppt_state[value]
+                value = Vedirect.VICTRON_CS[value]
             elif key == 'ERR':
-                value = victron_error[value]
+                value = Vedirect.VICTRON_ERROR[value]
 
             key = self.base_topic + victron_key_map[key]
             self.mqttc.publish(key, value)

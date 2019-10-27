@@ -6,11 +6,13 @@ After=multi-user.target
 Type=simple
 User=pi
 Group=pi
-WorkingDirectory=/home/pi/serial-reader
-EnvironmentFile=/home/pi/serial-reader/.env.installed
-ExecStart=/usr/bin/python -u src/reader.py --broker=${MQTT_BROKER_IP} --client-id=${MQTT_CLIENT_ID}-victron --username="${MQTT_USERNAME}" --password="${MQTT_PASSWORD}"
+WorkingDirectory=/home/pi/ve.direct-python
+EnvironmentFile=/home/pi/ve.direct-python/.env.installed
+ExecStart=/usr/bin/python -u src/reader.py --influx=${INFLUX_HOST} --database=${INFLUX_DB} --port=${SERIAL_PORT}
 StandardOutput=syslog
 StandardError=syslog
+RestartSec=5s
+Restart=always
 
 [Install]
 WantedBy=multi-user.target

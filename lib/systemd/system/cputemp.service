@@ -11,6 +11,8 @@ EnvironmentFile=/home/pi/serial-reader/.env.installed
 ExecStart=/usr/bin/python -u src/cputemp.py --broker=${MQTT_BROKER_IP} --client-id=${MQTT_CLIENT_ID}-cpu --username="${MQTT_USERNAME}" --password="${MQTT_PASSWORD}" --topic="${TEMP_TOPIC}" --report-period=${TEMP_REPORT_PERIOD}
 StandardOutput=syslog
 StandardError=syslog
+RestartSec=5s
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
