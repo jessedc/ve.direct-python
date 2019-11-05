@@ -83,15 +83,18 @@ class Vedirect:
         self.header1 = b'\r'
         self.header2 = b'\n'
         self.delimiter = b'\t'
+        self.hexmarker = b':'
         self.key = bytearray()
         self.value = bytearray()
         self.bytes_sum = 0
         self.state = self.wait_header
         self.dict = {}
 
-    wait_header, in_key, in_value, in_checksum = range(4)
+    hex, wait_header, in_key, in_value, in_checksum = range(5)
 
     def input(self, byte):
+        if byte == self.hexmarker and self.state != self.in_checksum:
+            self.state = self.hex
 
         if self.state == self.wait_header:
             self.bytes_sum += ord(byte)
@@ -136,7 +139,15 @@ class Vedirect:
                 return self.dict
             else:
                 print('Malformed packet')
+                print('----------------')
+                for k, v in self.dict.items():
+                    print("{} {}".format(k, v))
+
                 self.bytes_sum = 0
+        elif self.state == self.hex:
+            self.bytes_sum = 0
+            if byte == self.header2:
+                self.state = self.wait_header
         else:
             raise AssertionError()
 
